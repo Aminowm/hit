@@ -4,6 +4,7 @@ import { Tex } from '../components/Tex';
 import { Badge, Button, Card, EmptyState, ExamDot, IconButton, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { FORMULAS } from '../data/formulas';
+import { isFramed } from '../lib/env';
 import { stackTex } from '../lib/tex';
 import type { ExamId, Formula } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
@@ -71,9 +72,11 @@ export default function Formulas() {
         title="Formula Sheets"
         description="Rendered with real math typesetting. Each formula is marked as either on the official reference sheet or one you must memorize."
         actions={
-          <Button onClick={() => window.print()} className="print:hidden">
-            <Printer size={16} /> Print sheet
-          </Button>
+          isFramed ? undefined : (
+            <Button onClick={() => window.print()} className="print:hidden">
+              <Printer size={16} /> Print sheet
+            </Button>
+          )
         }
       />
 

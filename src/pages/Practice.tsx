@@ -2,6 +2,7 @@ import { ExternalLink, Plus, Target, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { LineChart } from '../components/charts';
+import { askConfirm } from '../components/confirm';
 import { Badge, Button, Card, CardHeader, cx, EmptyState, ExamDot, ExamTag, Field, IconButton, Meter, Modal, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { FRQ_ARCHIVE, frqKey } from '../data/frqArchive';
@@ -422,7 +423,7 @@ export default function Practice() {
                         <td className="num px-2 py-2.5 font-semibold whitespace-nowrap">{entryScore(p)}</td>
                         <td className="num px-2 py-2.5 text-muted">{p.minutes ? `${p.minutes}m` : '—'}</td>
                         <td className="px-5 py-1.5 text-right">
-                          <IconButton label="Delete entry" onClick={() => confirm('Delete this entry?') && remove(p.id)}>
+                          <IconButton label="Delete entry" onClick={async () => (await askConfirm({ title: 'Delete this entry?', confirmLabel: 'Delete', danger: true })) && remove(p.id)}>
                             <Trash2 size={15} />
                           </IconButton>
                         </td>

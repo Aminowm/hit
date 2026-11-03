@@ -1,5 +1,6 @@
 import { Layers, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { askConfirm } from '../components/confirm';
 import { RichText } from '../components/Tex';
 import { Badge, Button, Card, CardHeader, cx, EmptyState, ExamDot, ExamTag, Field, IconButton, PageHeader, Segmented, Stat } from '../components/ui';
 import { EXAMS } from '../data/exams';
@@ -265,7 +266,7 @@ export default function Flashcards() {
                     <RichText text={c.front} className="text-[14px] font-medium" />
                     <RichText text={c.back} className="text-[13.5px] text-ink-2" />
                   </div>
-                  <IconButton label="Delete card" onClick={() => confirm('Delete this card and its review history?') && removeCard(c.id)}>
+                  <IconButton label="Delete card" onClick={async () => (await askConfirm({ title: 'Delete this card?', message: 'Its review history is deleted too.', confirmLabel: 'Delete', danger: true })) && removeCard(c.id)}>
                     <Trash2 size={16} />
                   </IconButton>
                 </li>
@@ -284,8 +285,9 @@ function ResetProgress({ exams }: { exams: ExamId[] }) {
   const srs = useStore((s) => s.srs);
   const has = cards.some((c) => exams.includes(c.exam) && srs[c.id]);
   if (!has) return null;
-  const reset = () => {
-    if (!confirm('Reset review history for the selected decks? Cards will be treated as new again.')) return;
+  const reset = async () => {
+    const ok = await askConfirm({ title: 'Reset review history?', message: 'Cards in the selected decks will be treated as new again.', confirmLabel: 'Reset', danger: true });
+    if (!ok) return;
     const ids = new Set(cards.filter((c) => exams.includes(c.exam)).map((c) => c.id));
     useStore.setState((st) => ({ srs: Object.fromEntries(Object.entries(st.srs).filter(([id]) => !ids.has(id))) }));
   };

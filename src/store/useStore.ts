@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { EXAMS } from '../data/exams';
 import { todayISO } from '../lib/dates';
+import { safeStorage } from '../lib/env';
 import { review } from '../lib/srs';
 import type {
   ExamId,
@@ -207,7 +208,7 @@ export const useStore = create<StoreState>()(
     {
       name: STORAGE_KEY,
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       partialize: (st): StudyData => ({
         settings: st.settings,
         topics: st.topics,

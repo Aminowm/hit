@@ -22,6 +22,7 @@ import { useActiveExams, useStudyQueue } from '../../store/selectors';
 import { useStore } from '../../store/useStore';
 import { mockRemaining, PHASE_LABEL, pomRemaining, useNow, useTimer, useTimerEngine } from '../../store/useTimer';
 import { useThemeSync } from '../../store/useThemeSync';
+import { ConfirmHost } from '../confirm';
 import { cx } from '../ui';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -210,7 +211,7 @@ export function AppShell() {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-line bg-paper/90 px-4 py-2.5 backdrop-blur lg:hidden print:hidden">
+      <header className="sticky top-[env(safe-area-inset-top,0px)] z-30 flex items-center justify-between gap-2 border-b border-line bg-paper/90 px-4 py-2.5 backdrop-blur lg:hidden print:hidden">
         <Brand />
         <div className="flex items-center gap-1.5">
           <RunningTimer compact />
@@ -231,7 +232,7 @@ export function AppShell() {
       {drawer && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <button type="button" aria-label="Close menu" className="absolute inset-0 bg-black/35" onClick={() => setDrawer(false)} />
-          <div className="absolute inset-y-0 right-0 flex w-[min(300px,85vw)] flex-col gap-5 overflow-y-auto border-l border-line bg-paper px-4 py-4 shadow-2xl">
+          <div className="absolute inset-y-0 right-0 flex w-[min(300px,85vw)] flex-col gap-5 overflow-y-auto border-l border-line bg-paper px-4 pt-[max(1rem,env(safe-area-inset-top,0px))] pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="eyebrow">Menu</span>
               <button
@@ -251,6 +252,7 @@ export function AppShell() {
       <main id="main" className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-16 sm:px-6 lg:px-10 lg:pt-10">
         <Outlet />
       </main>
+      <ConfirmHost />
     </div>
   );
 }

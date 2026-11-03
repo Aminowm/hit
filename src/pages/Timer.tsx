@@ -1,12 +1,13 @@
 import { Bell, Pause, Play, RotateCcw, SkipForward, Square } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { askConfirm } from '../components/confirm';
 import { Badge, Button, buttonClass, Card, CardHeader, cx, ExamDot, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { formatClock, formatMinutes, todayISO } from '../lib/dates';
 import type { ExamId } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
-import { mockRemaining, PHASE_LABEL, pomRemaining, requestNotifications, useNow, useTimer, type PomPhase } from '../store/useTimer';
+import { mockRemaining, PHASE_LABEL, pomRemaining, primeAudio, requestNotifications, useNow, useTimer, type PomPhase } from '../store/useTimer';
 
 function Ring({ progress, color, children }: { progress: number; color: string; children: React.ReactNode }) {
   const r = 108;
@@ -72,6 +73,7 @@ function Pomodoro() {
               variant="primary"
               className="w-32"
               onClick={() => {
+                primeAudio();
                 requestNotifications();
                 pomStart();
               }}
@@ -230,6 +232,7 @@ function MockExam() {
                 variant="primary"
                 className="w-32"
                 onClick={() => {
+                  primeAudio();
                   requestNotifications();
                   mockStart();
                 }}
@@ -240,7 +243,7 @@ function MockExam() {
             <Button onClick={mockNext} aria-label="Next section">
               <SkipForward size={16} /> Next
             </Button>
-            <Button variant="ghost" onClick={() => confirm('Stop this mock exam?') && mockStop()} aria-label="Stop mock exam">
+            <Button variant="ghost" onClick={async () => (await askConfirm({ title: 'Stop this mock exam?', message: 'The timer resets and nothing is logged.', confirmLabel: 'Stop', danger: true })) && mockStop()} aria-label="Stop mock exam">
               <Square size={15} />
             </Button>
           </div>

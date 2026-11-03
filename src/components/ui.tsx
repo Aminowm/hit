@@ -9,7 +9,7 @@ export function cx(...parts: (string | false | null | undefined)[]) {
 
 // ---------------------------------------------------------------- buttons
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerSolid';
 type Size = 'sm' | 'md';
 
 const variantClass: Record<Variant, string> = {
@@ -17,6 +17,7 @@ const variantClass: Record<Variant, string> = {
   secondary: 'bg-surface text-ink border border-line-strong hover:bg-sunken',
   ghost: 'bg-transparent text-ink-2 border border-transparent hover:bg-sunken hover:text-ink',
   danger: 'bg-transparent text-bad border border-transparent hover:bg-bad-soft',
+  dangerSolid: 'bg-bad text-paper border border-transparent hover:opacity-90',
 };
 
 const sizeClass: Record<Size, string> = {

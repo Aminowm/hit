@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { EXAMS } from '../data/exams';
 import { todayISO } from '../lib/dates';
+import { safeStorage } from '../lib/env';
 import type { ExamId } from '../lib/types';
 import { useStore } from './useStore';
 
@@ -57,6 +58,16 @@ export const PHASE_LABEL: Record<PomPhase, string> = { focus: 'Focus', short: 'S
 // ---------------------------------------------------------------- alerts
 
 let audioCtx: AudioContext | null = null;
+/** Call from a click handler so later chimes are allowed to play. */
+export function primeAudio() {
+  try {
+    audioCtx ??= new AudioContext();
+    if (audioCtx.state === 'suspended') void audioCtx.resume();
+  } catch {
+    /* audio unavailable */
+  }
+}
+
 export function chime(times = 3) {
   if (!useStore.getState().settings.sound) return;
   try {
@@ -164,7 +175,7 @@ export const useTimer = create<TimerStore>()(
     {
       name: 'lyceum-timer',
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({ pom: s.pom, mock: s.mock }),
     },
   ),

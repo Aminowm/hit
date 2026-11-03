@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Badge, Button, buttonClass, Card, cx, EmptyState, ExamTag, Field, IconButton, Modal, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { RESOURCES } from '../data/resources';
+import { askConfirm } from '../components/confirm';
 import type { ExamId, Resource, ResourceCost, ResourceKind, ResourcePriority, ResourceStatus } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
@@ -75,7 +76,7 @@ function ResourceCard({ r }: { r: Resource }) {
         </select>
         <span className="flex-1" />
         {r.custom && (
-          <IconButton label="Remove resource" onClick={() => confirm(`Remove “${r.title}”?`) && remove(r.id)}>
+          <IconButton label="Remove resource" onClick={async () => (await askConfirm({ title: `Remove “${r.title}”?`, confirmLabel: 'Remove', danger: true })) && remove(r.id)}>
             <Trash2 size={16} />
           </IconButton>
         )}

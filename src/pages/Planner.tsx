@@ -144,6 +144,7 @@ function LogTime({ exams }: { exams: ExamId[] }) {
 export default function Planner() {
   const today = todayISO();
   const [monday, setMonday] = useState(() => startOfWeek(today));
+  const [notice, setNotice] = useState('');
   const tasks = useStore((s) => s.tasks);
   const addTask = useStore((s) => s.addTask);
   const exams = useActiveExams();
@@ -159,10 +160,11 @@ export default function Planner() {
     const existing = new Set(tasks.map((t) => `${t.date}|${t.title}`));
     const fresh = drafts.filter((d) => !existing.has(`${d.date}|${d.title}`));
     if (!fresh.length) {
-      alert('This week already has the suggested tasks.');
+      setNotice('This week already has the suggested tasks.');
       return;
     }
     fresh.forEach(addTask);
+    setNotice(`Added ${fresh.length} suggested tasks.`);
   };
 
   return (
@@ -195,7 +197,8 @@ export default function Planner() {
             </Button>
           )}
         </div>
-        <p className="text-[13px] text-muted">
+        <p className="text-[13px] text-muted" role="status">
+          {notice && <span className="mr-2 font-medium text-ink-2">{notice}</span>}
           {done}/{weekTasks.length} tasks done
           {phase ? ` · phase: ${phase.title}` : ''}
         </p>

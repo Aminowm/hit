@@ -2,6 +2,7 @@ import { CheckCircle2, Circle, NotebookPen, Plus, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BarList } from '../components/charts';
+import { askConfirm } from '../components/confirm';
 import { RichText } from '../components/Tex';
 import { Badge, Button, Card, CardHeader, cx, EmptyState, ExamTag, Field, IconButton, Modal, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
@@ -177,7 +178,7 @@ function MistakeCard({ m, today }: { m: Mistake; today: string }) {
             {m.source ? ` · ${m.source}` : ''}
           </p>
         </div>
-        <IconButton label="Delete mistake" onClick={() => confirm('Delete this entry?') && remove(m.id)}>
+        <IconButton label="Delete mistake" onClick={async () => (await askConfirm({ title: 'Delete this mistake?', confirmLabel: 'Delete', danger: true })) && remove(m.id)}>
           <Trash2 size={15} />
         </IconButton>
       </div>

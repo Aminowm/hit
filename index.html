@@ -11,13 +11,20 @@
     <script>
       // Apply the saved theme before first paint so the page never flashes the wrong palette.
       (function () {
+        var root = document.documentElement;
+        // A host page (e.g. an embedding viewer) may already have chosen a theme.
+        var host = root.getAttribute('data-theme');
+        window.__lyceumHostTheme = host === 'dark' || host === 'light' ? host : null;
         var theme = 'system';
         try {
           var raw = localStorage.getItem('lyceum-v1');
           if (raw) theme = (JSON.parse(raw).state || {}).settings?.theme || 'system';
         } catch (e) {}
-        var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        var sys = window.__lyceumHostTheme
+          ? window.__lyceumHostTheme === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = theme === 'dark' || (theme === 'system' && sys);
+        root.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
   </head>

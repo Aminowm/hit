@@ -1,8 +1,10 @@
-import { Download, ExternalLink, Upload } from 'lucide-react';
+import { ClipboardCopy, ClipboardPaste, Download, ExternalLink, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { Button, Card, CardHeader, ExamDot, Field, PageHeader, Segmented } from '../components/ui';
+import { askConfirm } from '../components/confirm';
+import { Button, Card, CardHeader, ExamDot, Field, Modal, PageHeader, Segmented } from '../components/ui';
 import { EXAM_ORDER, EXAMS } from '../data/exams';
 import { todayISO } from '../lib/dates';
+import { isFramed } from '../lib/env';
 import type { ExamId, ThemePref } from '../lib/types';
 import { exportData, useStore } from '../store/useStore';
 
@@ -71,9 +73,24 @@ export default function SettingsPage() {
   const resetAll = useStore((s) => s.resetAll);
   const fileRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [manualCopy, setManualCopy] = useState('');
+
+  const backupJson = () => JSON.stringify({ app: 'lyceum', version: 1, exportedAt: new Date().toISOString(), data: exportData() }, null, 2);
+
+  const copyBackup = async () => {
+    const json = backupJson();
+    try {
+      await navigator.clipboard.writeText(json);
+      setMessage('Backup copied. Paste it into a note or file to keep it safe.');
+    } catch {
+      setManualCopy(json); // clipboard blocked — show it for manual copy
+    }
+  };
 
   const download = () => {
-    const blob = new Blob([JSON.stringify({ app: 'lyceum', version: 1, exportedAt: new Date().toISOString(), data: exportData() }, null, 2)], {
+    const blob = new Blob([backupJson()], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
@@ -85,17 +102,25 @@ export default function SettingsPage() {
     setMessage('Backup downloaded.');
   };
 
-  const upload = async (file: File) => {
+  const restore = async (text: string): Promise<boolean> => {
+    let data: unknown;
     try {
-      const parsed = JSON.parse(await file.text());
-      const data = parsed?.app === 'lyceum' ? parsed.data : parsed;
+      const parsed = JSON.parse(text);
+      data = parsed?.app === 'lyceum' ? parsed.data : parsed;
       if (!data || typeof data !== 'object' || !('settings' in data)) throw new Error('Not a Lyceum backup');
-      if (!confirm('Replace all current data with this backup?')) return;
-      importData(data);
-      setMessage('Backup restored.');
     } catch {
-      setMessage('That file is not a valid Lyceum backup.');
+      setMessage('That isn’t a valid Lyceum backup. Use the text from “Copy backup” or a downloaded .json file.');
+      return false;
     }
+    const ok = await askConfirm({ title: 'Restore this backup?', message: 'All current progress, logs and settings are replaced by the backup.', confirmLabel: 'Restore', danger: true });
+    if (!ok) return false;
+    importData(data);
+    setMessage('Backup restored.');
+    return true;
+  };
+
+  const upload = async (file: File) => {
+    await restore(await file.text());
   };
 
   const pomo = settings.pomodoro;
@@ -166,13 +191,21 @@ export default function SettingsPage() {
 
         <section>
           <Card>
-            <CardHeader title="Your data" subtitle="Everything is stored only in this browser (localStorage). Export a backup regularly — clearing browser data erases it." />
+            <CardHeader title="Your data" subtitle="Everything is stored only in this browser. Copy or download a backup regularly; clearing browser data erases it." />
             <div className="flex flex-wrap items-center gap-2 px-5 pb-5">
-              <Button onClick={download}>
-                <Download size={16} /> Export backup (.json)
+              <Button onClick={copyBackup}>
+                <ClipboardCopy size={16} /> Copy backup
+              </Button>
+              {!isFramed && (
+                <Button onClick={download}>
+                  <Download size={16} /> Download backup (.json)
+                </Button>
+              )}
+              <Button onClick={() => setPasteOpen(true)}>
+                <ClipboardPaste size={16} /> Paste backup
               </Button>
               <Button onClick={() => fileRef.current?.click()}>
-                <Upload size={16} /> Import backup
+                <Upload size={16} /> Import file
               </Button>
               <input
                 ref={fileRef}
@@ -188,8 +221,14 @@ export default function SettingsPage() {
               <span className="flex-1" />
               <Button
                 variant="danger"
-                onClick={() => {
-                  if (confirm('Erase ALL progress, logs, cards and settings? This cannot be undone.')) {
+                onClick={async () => {
+                  const ok = await askConfirm({
+                    title: 'Erase everything?',
+                    message: 'All progress, logs, flashcard history and settings are deleted from this browser. Copy a backup first if you might want it back.',
+                    confirmLabel: 'Erase everything',
+                    danger: true,
+                  });
+                  if (ok) {
                     resetAll();
                     setMessage('All data erased.');
                   }
@@ -206,6 +245,40 @@ export default function SettingsPage() {
           </Card>
         </section>
       </div>
+
+      <Modal
+        open={pasteOpen}
+        onClose={() => setPasteOpen(false)}
+        title="Paste a backup"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setPasteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              disabled={!pasteText.trim()}
+              onClick={async () => {
+                if (await restore(pasteText)) {
+                  setPasteOpen(false);
+                  setPasteText('');
+                }
+              }}
+            >
+              Restore
+            </Button>
+          </>
+        }
+      >
+        <Field label="Backup text" hint="Paste the text you saved with “Copy backup”.">
+          {(id) => <textarea id={id} rows={8} className="field font-mono text-[12px]" value={pasteText} onChange={(e) => setPasteText(e.target.value)} />}
+        </Field>
+      </Modal>
+
+      <Modal open={!!manualCopy} onClose={() => setManualCopy('')} title="Copy your backup">
+        <p className="mb-3 text-[13.5px] text-ink-2">Your browser blocked automatic copying. Select all of the text below and copy it.</p>
+        <textarea readOnly rows={10} className="field font-mono text-[12px]" value={manualCopy} onFocus={(e) => e.currentTarget.select()} aria-label="Backup text" />
+      </Modal>
     </>
   );
 }

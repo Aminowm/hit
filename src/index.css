@@ -40,6 +40,40 @@
   --axis: #c9c2b2;
 }
 
+/* Before any data-theme is set (or when a host leaves it unset), follow the OS. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #151412;
+    --surface: #1c1b18;
+    --sunken: #24221e;
+    --ink: #efece4;
+    --ink-2: #c6c1b5;
+    --muted: #8f8a7e;
+    --line: #2f2d28;
+    --line-strong: #423f38;
+    --accent: #d9777f;
+    --accent-hover: #e48b92;
+    --accent-ink: #1a0f10;
+    --accent-soft: #3a2326;
+    --good: #4cc26a;
+    --good-soft: #1d3324;
+    --warn: #e0a83a;
+    --warn-soft: #3a2f18;
+    --bad: #ec7a76;
+    --bad-soft: #3d2120;
+
+    /* Dark steps of the same hues (validated against #1c1b18) */
+    --exam-calcbc: #3987e5;
+    --exam-physc: #d95926;
+    --exam-phys1: #199e70;
+    --exam-sat: #9085e9;
+
+    --grid: #2a2824;
+    --axis: #403d36;
+  }
+}
+
 :root[data-theme='dark'] {
   color-scheme: dark;
   --paper: #151412;
@@ -123,6 +157,15 @@
     font-family: var(--font-serif);
     letter-spacing: -0.01em;
     color: var(--ink);
+  }
+  /* Paints the status-bar band above the sticky header on phones. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 40;
+    background: var(--paper);
   }
   ::selection {
     background: var(--accent-soft);
