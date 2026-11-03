@@ -68,3 +68,12 @@ everywhere (flashcards are generated from formulas automatically). See [`docs/AR
 - Score conversions are **estimates**: the Digital SAT is adaptive and scored with item-response theory, and AP cut scores
   are not published. They are useful for trends and margins, not guarantees.
 - The library links to official sites and publishers; no copyrighted material is hosted.
+
+## One-file version (no install)
+
+```bash
+npm run build:single
+```
+
+This writes `dist-single/index.html`: the whole app in a single file (scripts, styles and fonts inlined).
+Double-click it to open in Chrome. It works offline, and progress is saved in that browser.
