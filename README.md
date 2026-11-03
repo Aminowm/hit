@@ -44,13 +44,22 @@ npm test
 npm run build
 ```
 
-## Deploy (free) to GitHub Pages
+## Publish it (free) on GitHub Pages
 
-1. Push to `main`.
-2. In the repository: **Settings → Pages → Source: GitHub Actions**.
-3. The included workflow (`.github/workflows/deploy.yml`) tests, builds and publishes the site.
+1. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions** (one time).
+2. **Actions → Deploy to GitHub Pages → Run workflow** (or push any commit to the default branch).
+3. The site goes live at **https://aminowm.github.io/hit/** and redeploys on every push to the default branch.
 
-The build uses relative paths and hash routing, so the `dist/` folder also works on Netlify, Vercel or any static host.
+The build uses relative paths and hash routing, so `dist/` also works on Netlify, Vercel or any static host.
+
+### Getting found on Google
+
+The page already has a title, description, social preview image (`public/og-image.png`) and `sitemap.xml`.
+1. Open [Google Search Console](https://search.google.com/search-console), add a **URL-prefix** property for
+   `https://aminowm.github.io/hit/` and verify it (HTML-tag method: put the `<meta name="google-site-verification" …>`
+   tag in `index.html`, push, then click Verify).
+2. In Search Console, submit `https://aminowm.github.io/hit/sitemap.xml` and use **URL inspection → Request indexing**.
+3. Share the link (school groups, Reddit study communities); links from other sites help Google find and rank it.
 
 ## Your data
 

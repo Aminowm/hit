@@ -47,6 +47,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyGoalMinutes: 120,
   newCardsPerDay: 15,
   sound: true,
+  welcomed: false,
 };
 
 /** Everything that is persisted and exported. */

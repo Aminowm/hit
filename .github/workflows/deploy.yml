@@ -1,10 +1,10 @@
 name: Deploy to GitHub Pages
 
-# Builds the static site, runs the tests, and publishes `dist/` to GitHub Pages.
+# Tests, builds and publishes `dist/` to GitHub Pages whenever the repository's
+# default branch changes (whatever it is called), or when started by hand.
 # One-time setup: repository Settings → Pages → Source: "GitHub Actions".
 on:
   push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

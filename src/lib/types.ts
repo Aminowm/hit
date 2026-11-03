@@ -207,4 +207,6 @@ export interface Settings {
   dailyGoalMinutes: number;
   newCardsPerDay: number;
   sound: boolean;
+  /** First-visit welcome card dismissed. */
+  welcomed: boolean;
 }

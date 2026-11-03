@@ -14,6 +14,29 @@ import type { ExamId } from '../lib/types';
 import { useActiveExams, useFocusQueue, useRoadmap, useStudyQueue } from '../store/selectors';
 import { useStore } from '../store/useStore';
 
+function Welcome() {
+  const update = useStore((s) => s.updateSettings);
+  return (
+    <Card className="flex flex-col gap-4 border-accent/30 bg-accent-soft/40 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <h2 className="font-serif text-[18px] font-semibold">Welcome to Lyceum</h2>
+        <p className="mt-1 max-w-2xl text-[14px] text-ink-2">
+          A free study desk for the Digital SAT, AP Calculus BC and AP Physics. It’s set up for the December SAT and the May AP exams with a
+          1550 / 5 target; change your exams, dates and goals in Settings. Your progress stays private in this browser, with nothing to sign up for.
+        </p>
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <Link to="/settings" className={buttonClass('primary')} onClick={() => update({ welcomed: true })}>
+          Set my exams
+        </Link>
+        <Button variant="ghost" onClick={() => update({ welcomed: true })}>
+          Dismiss
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 function greeting(now = new Date()) {
   const h = now.getHours();
   return h < 5 ? 'Burning the midnight oil' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
@@ -187,6 +210,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </header>
+
+      {!settings.welcomed && <Welcome />}
 
       {/* Countdowns */}
       <div className={cx('grid gap-4 sm:grid-cols-2', exams.length >= 3 ? 'xl:grid-cols-4' : 'xl:grid-cols-2')}>

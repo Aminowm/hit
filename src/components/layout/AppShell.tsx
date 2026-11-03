@@ -173,7 +173,7 @@ function useDocumentTitle() {
   useEffect(() => {
     if (mock.running && mock.exam) document.title = `${formatClock(mockRemaining(mock, now))} · ${EXAMS[mock.exam].short} mock — Lyceum`;
     else if (pom.running) document.title = `${formatClock(pomRemaining(pom, now))} · ${PHASE_LABEL[pom.phase]} — Lyceum`;
-    else document.title = 'Lyceum Study Desk';
+    else document.title = 'Lyceum — Free SAT & AP Study Desk';
   }, [pom, mock, now]);
 }
 
@@ -251,6 +251,10 @@ export function AppShell() {
 
       <main id="main" className="mx-auto w-full max-w-[1180px] px-4 pt-6 pb-16 sm:px-6 lg:px-10 lg:pt-10">
         <Outlet />
+        <footer className="mt-16 border-t border-line pt-5 text-[12px] leading-relaxed text-muted print:hidden">
+          SAT® and AP® are trademarks registered by the College Board, which is not affiliated with, and does not endorse, this site.
+          Your progress is stored only in your own browser.
+        </footer>
       </main>
       <ConfirmHost />
     </div>
