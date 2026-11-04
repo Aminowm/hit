@@ -1,11 +1,11 @@
 import { parseISODate } from './dates';
-import type { FocusItem } from './progress';
+import { unitLabel, type FocusItem } from './progress';
 import type { Phase } from './roadmap';
 import type { ExamId, Task } from './types';
 
 export type TaskDraft = Omit<Task, 'id' | 'done'>;
 
-const unitName = (f: FocusItem) => (f.unit.section ? f.unit.title : `Unit ${f.unit.code}: ${f.unit.title}`);
+const unitName = (f: FocusItem) => (f.exam === 'ielts' ? `IELTS ${f.unit.title}` : unitLabel(f.unit, ': '));
 
 /**
  * Suggests a week of tasks from the current roadmap phase and the focus queue.

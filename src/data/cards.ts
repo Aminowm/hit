@@ -37,6 +37,22 @@ export const CONCEPT_CARDS: Flashcard[] = [
   concept('physc', 'drag', 'Linear drag: terminal velocity and time constant?', '$v_T = \\dfrac{mg}{b}$, $\\tau = \\dfrac{m}{b}$; $v(t) = v_T(1 - e^{-t/\\tau})$.'),
   concept('physc', 'equilibrium', 'Stable vs. unstable equilibrium from U(x)?', 'Equilibrium where $dU/dx = 0$; stable at a minimum of U, unstable at a maximum.'),
   concept('physc', 'shm', 'How do you prove motion is simple harmonic?', 'Show the restoring force (or torque) gives $\\ddot{x} = -\\omega^2 x$; then $\\omega$ is the square root of the coefficient.'),
+  concept('ielts', 'link-addition', 'Linking words: **addition**', 'Moreover · Furthermore · In addition · Besides · What is more · Not only … but also'),
+  concept('ielts', 'link-example', 'Linking words: **exemplification & clarification**', 'For example · For instance · Such as · Namely · To illustrate · In other words · That is to say'),
+  concept('ielts', 'link-contrast', 'Linking words: **contrast & concession**', 'However · Nevertheless · On the other hand · Whereas · While · Although · Despite / In spite of (+ noun)'),
+  concept('ielts', 'link-cause', 'Linking words: **cause & effect**', 'Therefore · Consequently · As a result · Thus · Due to / Owing to / Because of (+ noun)'),
+  concept('ielts', 'link-conclusion', 'Linking words: **concluding**', 'In conclusion · To sum up · On balance · Overall (opens a Task 1 overview)'),
+  concept('ielts', 'task2-basics', 'Writing Task 2: time, length, weight?', 'About **40 minutes**, at least **250 words**, and worth **twice as much** as Task 1.'),
+  concept('ielts', 'task1-overview', 'What must every Task 1 report include?', 'A clear **overview** of the main trends or features (no opinions). Without it, Task Achievement rarely goes above band 5.'),
+  concept('ielts', 'opinion-structure', 'Structure of an **opinion** essay?', 'Introduction (paraphrase + clear position) → two body paragraphs, each one reason with an example → conclusion restating your position.'),
+  concept('ielts', 'discussion-structure', 'Structure of a **discussion** essay (“discuss both views and give your opinion”)?', 'Introduction → paragraph on view 1 → paragraph on view 2 → conclusion with your opinion (state it in the introduction too).'),
+  concept('ielts', 'writing-criteria', 'The four Writing criteria?', 'Task Achievement / Task Response · Coherence & Cohesion · Lexical Resource · Grammatical Range & Accuracy (25% each).'),
+  concept('ielts', 'speaking-criteria', 'The four Speaking criteria?', 'Fluency & Coherence · Lexical Resource · Grammatical Range & Accuracy · Pronunciation (25% each).'),
+  concept('ielts', 'tfng-ynng', 'True/False/Not Given vs Yes/No/Not Given?', 'T/F/NG checks **facts** in the text; Y/N/NG checks the **writer’s views or claims**.'),
+  concept('ielts', 'false-ng', '“False” vs “Not Given”?', 'False: the text **contradicts** the statement. Not Given: the text gives **no information** about it.'),
+  concept('ielts', 'part2', 'Speaking Part 2 timing?', '1 minute to prepare (notes allowed), then speak for **up to 2 minutes**; the examiner may ask one or two short follow-up questions.'),
+  concept('ielts', 'rounding', 'How is the overall band rounded?', 'Average of the four skills: **.25 rounds up** to the next half band, **.75 rounds up** to the next whole band (6.25 → 6.5, 6.75 → 7).'),
+  concept('ielts', 'word-limit', '“NO MORE THAN TWO WORDS AND/OR A NUMBER”: what if you write three words?', 'The answer is marked **wrong**, even if the content is right. Hyphenated words count as one word.'),
 ];
 
 /** Every formula becomes a recall card: name → formula. */

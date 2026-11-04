@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import { LineChart, StackedColumns } from '../components/charts';
 import { RoadmapTimeline } from '../components/Roadmap';
 import { Badge, Button, buttonClass, Card, CardHeader, cx, ExamDot, ExamTag, Meter, Stat } from '../components/ui';
-import { EXAMS } from '../data/exams';
+import { CHART_ORDER, EXAMS } from '../data/exams';
 import { COURSES } from '../data/topics';
 import { addDays, daysBetween, formatCountdown, formatDate, formatMinutes, startOfWeek, todayISO, weekDays } from '../lib/dates';
-import { courseMastery, statusCounts } from '../lib/progress';
+import { courseMastery, statusCounts, unitLabel } from '../lib/progress';
+import { formatBand } from '../lib/scoring';
 import { currentPhase } from '../lib/roadmap';
 import { dailyBreakdown, minutesByDate, studyStreak } from '../lib/stats';
 import type { ExamId } from '../lib/types';
@@ -21,8 +22,8 @@ function Welcome() {
       <div className="min-w-0">
         <h2 className="font-serif text-[18px] font-semibold">Welcome to Lyceum</h2>
         <p className="mt-1 max-w-2xl text-[14px] text-ink-2">
-          A free study desk for the Digital SAT, AP Calculus BC and AP Physics. It’s set up for the December SAT and the May AP exams with a
-          1550 / 5 target; change your exams, dates and goals in Settings. Your progress stays private in this browser, with nothing to sign up for.
+          A free study desk for the Digital SAT, AP Calculus BC, AP Physics and IELTS. It’s set up for the December SAT and the May AP exams with
+          1550 / 5 / 7.5 targets; change your exams, dates and goals in Settings. Your progress stays private in this browser, with nothing to sign up for.
         </p>
       </div>
       <div className="flex shrink-0 gap-2">
@@ -54,12 +55,14 @@ function CountdownCard({ exam, today }: { exam: ExamId; today: string }) {
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-2 text-[14px] font-semibold">
-          <ExamDot exam={exam} />
-          <span className="line-clamp-2">{def.name}</span>
-        </span>
-        <Badge tone="neutral">Target {cfg.target}</Badge>
+      <div className="min-h-[3.8rem]">
+        <p className="flex items-start gap-2 text-[14px] leading-snug font-semibold">
+          <ExamDot exam={exam} className="mt-1.5" />
+          <span>{def.name}</span>
+        </p>
+        <p className="mt-0.5 pl-[18px] text-[12.5px] text-muted">
+          Target <span className="num font-semibold text-ink-2">{exam === 'ielts' ? formatBand(cfg.target) : cfg.target}</span>
+        </p>
       </div>
       {days !== null && cfg.date ? (
         <div>
@@ -68,7 +71,7 @@ function CountdownCard({ exam, today }: { exam: ExamId; today: string }) {
             {days > 1 && <span className="ml-1.5 font-sans text-[15px] font-medium text-muted">days</span>}
           </p>
           <p className="mt-1.5 text-[13px] text-muted">
-            {formatDate(cfg.date, 'long')}
+            {formatDate(cfg.date, 'weekdayDate')}
             {!def.dateConfirmed && ' · unconfirmed'}
           </p>
         </div>
@@ -214,7 +217,12 @@ export default function Dashboard() {
       {!settings.welcomed && <Welcome />}
 
       {/* Countdowns */}
-      <div className={cx('grid gap-4 sm:grid-cols-2', exams.length >= 3 ? 'xl:grid-cols-4' : 'xl:grid-cols-2')}>
+      <div
+        className={cx(
+          'grid gap-4 sm:grid-cols-2',
+          exams.length >= 5 ? 'lg:grid-cols-3 xl:grid-cols-5' : exams.length >= 3 ? 'xl:grid-cols-4' : 'xl:grid-cols-2',
+        )}
+      >
         {exams.map((e) => (
           <CountdownCard key={e} exam={e} today={today} />
         ))}
@@ -238,8 +246,7 @@ export default function Dashboard() {
                     <span className="min-w-0">
                       <span className="flex items-center gap-2 text-[14px] font-medium">
                         <span className="truncate">
-                          {f.unit.section ? '' : `Unit ${f.unit.code} · `}
-                          {f.unit.title}
+                          {unitLabel(f.unit)}
                         </span>
                       </span>
                       <span className="mt-1 flex items-center gap-2">
@@ -272,7 +279,7 @@ export default function Dashboard() {
                 ariaLabel="Minutes studied per day this week, by exam"
                 data={breakdown.map((d) => ({ label: formatDate(d.date, 'weekday'), sublabel: d.total ? String(d.total) : '', values: d.byExam }))}
                 keys={[
-                  ...exams.map((e) => ({ id: e, label: EXAMS[e].short, color: `var(--exam-${e})` })),
+                  ...CHART_ORDER.filter((e) => exams.includes(e)).map((e) => ({ id: e, label: EXAMS[e].short, color: `var(--exam-${e})` })),
                   { id: 'other', label: 'General', color: 'var(--muted)' },
                 ]}
                 goal={{ value: settings.dailyGoalMinutes, label: 'Goal' }}

@@ -6,6 +6,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LibraryPage = lazy(() => import('./pages/Library'));
 const Topics = lazy(() => import('./pages/Topics'));
 const Formulas = lazy(() => import('./pages/Formulas'));
+const Ielts = lazy(() => import('./pages/Ielts'));
 const Flashcards = lazy(() => import('./pages/Flashcards'));
 const Practice = lazy(() => import('./pages/Practice'));
 const Mistakes = lazy(() => import('./pages/Mistakes'));
@@ -30,6 +31,7 @@ const router = createHashRouter([
       { path: 'topics', element: page(<Topics />) },
       { path: 'topics/:exam', element: page(<Topics />) },
       { path: 'formulas', element: page(<Formulas />) },
+      { path: 'ielts', element: page(<Ielts />) },
       { path: 'flashcards', element: page(<Flashcards />) },
       { path: 'practice', element: page(<Practice />) },
       { path: 'mistakes', element: page(<Mistakes />) },

@@ -8,6 +8,7 @@ export const FORMULAS: Record<ExamId, Formula[]> = {
   calcbc: CALCBC_FORMULAS,
   phys1: PHYS1_FORMULAS,
   physc: PHYSC_FORMULAS,
+  ielts: [],
 };
 
 export const ALL_FORMULAS: Formula[] = Object.values(FORMULAS).flat();

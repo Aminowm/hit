@@ -4,7 +4,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Badge, Card, cx, ExamDot, Meter, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { COURSES } from '../data/topics';
-import { courseMastery, nextStatus, STATUS_LABEL, STATUS_ORDER, statusCounts, statusOf, unitMastery } from '../lib/progress';
+import { courseMastery, isNumberedUnit, nextStatus, STATUS_LABEL, STATUS_ORDER, statusCounts, statusOf, unitMastery } from '../lib/progress';
 import type { ExamId, Topic, TopicStatus, Unit } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
@@ -72,11 +72,11 @@ function UnitSection({ unit, exam, open, onToggle, hideMastered }: { unit: Unit;
     <Card className="scroll-mt-24 overflow-hidden">
       <div id={unit.id} className="scroll-mt-24" />
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-4 px-5 py-4 text-left hover:bg-sunken/60">
-        <span className="num hidden w-10 shrink-0 font-serif text-[22px] font-semibold text-muted sm:block">{unit.section ? '' : unit.code}</span>
+        <span className="num hidden w-10 shrink-0 font-serif text-[22px] font-semibold text-muted sm:block">{isNumberedUnit(unit) ? unit.code : ''}</span>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-serif text-[16.5px] leading-snug font-semibold">
-              <span className="sm:hidden">{unit.section ? '' : `${unit.code}. `}</span>
+              <span className="sm:hidden">{isNumberedUnit(unit) ? `${unit.code}. ` : ''}</span>
               {unit.title}
             </span>
             {unit.badge && <Badge tone="accent">{unit.badge}</Badge>}
@@ -90,7 +90,7 @@ function UnitSection({ unit, exam, open, onToggle, hideMastered }: { unit: Unit;
         </span>
         <span className="hidden shrink-0 text-right sm:block">
           <span className="block text-[13px] font-semibold">{weight}</span>
-          <span className="block text-[11.5px] text-muted">{unit.section ? `of ${unit.section}` : 'of exam'}</span>
+          <span className="block text-[11.5px] text-muted">{unit.section ? `of ${unit.section}` : unit.id.startsWith('ielts') ? 'of overall band' : 'of exam'}</span>
         </span>
         <ChevronDown size={18} className={cx('shrink-0 text-muted transition-transform', open && 'rotate-180')} />
       </button>
@@ -98,7 +98,7 @@ function UnitSection({ unit, exam, open, onToggle, hideMastered }: { unit: Unit;
         <div className="border-t border-line">
           <div className="flex flex-wrap items-center gap-2 bg-sunken/50 px-5 py-2 text-[12.5px] text-muted">
             <span className="sm:hidden">
-              {weight} {unit.section ? `of ${unit.section}` : 'of exam'} ·
+              {weight} {unit.section ? `of ${unit.section}` : unit.id.startsWith('ielts') ? 'of overall band' : 'of exam'} ·
             </span>
             Set all:
             {STATUS_ORDER.map((s) => (

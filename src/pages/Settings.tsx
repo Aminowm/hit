@@ -35,15 +35,15 @@ function ExamSettingsCard({ exam }: { exam: ExamId }) {
             <Field label="Exam date" hint={!def.dateConfirmed && !cfg.date ? 'Not set — add yours to get a countdown.' : undefined}>
               {(id) => <input id={id} type="date" className="field" value={cfg.date ?? ''} onChange={(e) => update(exam, { date: e.target.value || null })} />}
             </Field>
-            <Field label={isSat ? 'Target score' : 'Target (1–5)'}>
+            <Field label={isSat ? 'Target score' : `Target (${def.scale})`}>
               {(id) => (
                 <input
                   id={id}
                   type="number"
                   className="field num"
-                  min={isSat ? 400 : 1}
-                  max={isSat ? 1600 : 5}
-                  step={isSat ? 10 : 1}
+                  min={def.target.min}
+                  max={def.target.max}
+                  step={def.target.step}
                   value={cfg.target}
                   onChange={(e) => update(exam, { target: Number(e.target.value) || def.defaultTarget })}
                 />

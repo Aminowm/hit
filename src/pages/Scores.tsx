@@ -9,6 +9,10 @@ import {
   apFrqPointsNeeded,
   apScoreFromPercent,
   estimateSat,
+  formatBand,
+  ieltsBandFromRaw,
+  ieltsOverall,
+  ieltsRawNeeded,
   SAT_MATH_MAX,
   SAT_RW_MAX,
   satTargetSplits,
@@ -306,6 +310,157 @@ function ApEstimator({ exam }: { exam: ExamId }) {
   );
 }
 
+const BAND_OPTIONS = Array.from({ length: 19 }, (_, i) => i / 2); // 0 … 9
+
+function BandSelect({ id, value, onChange, label }: { id: string; value: number; onChange: (v: number) => void; label: string }) {
+  return (
+    <select id={id} aria-label={label} className="field num w-24" value={value} onChange={(e) => onChange(Number(e.target.value))}>
+      {BAND_OPTIONS.map((b) => (
+        <option key={b} value={b}>
+          {formatBand(b)}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function IeltsEstimator() {
+  const savedTarget = useStore((s) => s.settings.exams.ielts.target);
+  const addPractice = useStore((s) => s.addPractice);
+  const [listening, setListening] = useState(32);
+  const [reading, setReading] = useState(31);
+  const [writing, setWriting] = useState(6.5);
+  const [speaking, setSpeaking] = useState(7);
+  const [target, setTarget] = useState(savedTarget);
+  const [saved, setSaved] = useState(false);
+
+  const lBand = ieltsBandFromRaw('listening', listening);
+  const rBand = ieltsBandFromRaw('reading', reading);
+  const overall = ieltsOverall([lBand, rBand, writing, speaking]);
+  const avg = (lBand + rBand + writing + speaking) / 4;
+  const diff = overall - target;
+  const rows: { skill: string; band: number }[] = [
+    { skill: 'Listening', band: lBand },
+    { skill: 'Reading', band: rBand },
+    { skill: 'Writing', band: writing },
+    { skill: 'Speaking', band: speaking },
+  ];
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <Card>
+        <CardHeader title="Practice test → band" subtitle="Listening and Reading from correct answers (out of 40); Writing and Speaking from your marked or self-assessed band." />
+        <div className="flex flex-col gap-5 px-5 pb-5">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="ielts-l" className="text-[14px] font-semibold">
+              Listening correct <span className="font-normal text-muted">→ band {formatBand(lBand)}</span>
+            </label>
+            <NumberInput id="ielts-l" value={listening} onChange={setListening} max={40} label="Listening correct" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="ielts-r" className="text-[14px] font-semibold">
+              Academic Reading correct <span className="font-normal text-muted">→ band {formatBand(rBand)}</span>
+            </label>
+            <NumberInput id="ielts-r" value={reading} onChange={setReading} max={40} label="Reading correct" />
+          </div>
+          <div className="flex flex-wrap gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ielts-w" className="text-[14px] font-semibold">
+                Writing band
+              </label>
+              <BandSelect id="ielts-w" value={writing} onChange={setWriting} label="Writing band" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ielts-s" className="text-[14px] font-semibold">
+                Speaking band
+              </label>
+              <BandSelect id="ielts-s" value={speaking} onChange={setSpeaking} label="Speaking band" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 rounded-xl border border-line bg-sunken/50 p-4 sm:grid-cols-5">
+            {rows.map((r) => (
+              <div key={r.skill}>
+                <p className="text-[12.5px] text-muted">{r.skill}</p>
+                <p className="num font-serif text-[24px] font-semibold">{formatBand(r.band)}</p>
+              </div>
+            ))}
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-[12.5px] text-muted">Overall</p>
+              <p className="num font-serif text-[32px] leading-tight font-semibold">{formatBand(overall)}</p>
+              <Badge tone={diff >= 0 ? 'good' : 'warn'}>{diff >= 0 ? 'Target reached' : `${formatBand(-diff)} below target`}</Badge>
+            </div>
+          </div>
+          <p className="text-[12.5px] text-muted">
+            Average {avg.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')} rounds to {formatBand(overall)}.
+          </p>
+          <div>
+            <Button
+              onClick={() => {
+                addPractice({ date: todayISO(), exam: 'ielts', kind: 'full', source: 'Practice test (score estimator)', band: overall });
+                setSaved(true);
+                setTimeout(() => setSaved(false), 1800);
+              }}
+            >
+              <Save size={15} /> {saved ? 'Saved to Practice Log' : 'Save to Practice Log'}
+            </Button>
+          </div>
+          <Disclaimer>
+            Listening and Reading use the typical conversion tables published by IELTS; boundaries can move by a mark between test versions.
+            General Training Reading uses a different, stricter table.
+          </Disclaimer>
+        </div>
+      </Card>
+
+      <div className="flex flex-col gap-6">
+        <Card>
+          <CardHeader title="What your target needs" subtitle="Minimum correct answers out of 40 for each band." />
+          <div className="flex flex-col gap-4 px-5 pb-5">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ielts-target" className="text-[13px] font-medium text-ink-2">
+                Target band
+              </label>
+              <BandSelect id="ielts-target" value={target} onChange={setTarget} label="Target band" />
+            </div>
+            <table className="w-full text-[13.5px]">
+              <thead>
+                <tr className="border-b border-line text-left text-[12.5px] text-muted">
+                  <th className="py-2 font-medium">Band</th>
+                  <th className="py-2 font-medium">Listening</th>
+                  <th className="py-2 font-medium">Reading</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[target - 0.5, target, target + 0.5]
+                  .filter((b) => b >= 4 && b <= 9)
+                  .map((b) => (
+                    <tr key={b} className={cx('border-b border-line last:border-b-0', b === target && 'font-semibold')}>
+                      <td className="num py-2">{formatBand(b)}</td>
+                      <td className="num py-2">{ieltsRawNeeded('listening', b) ?? '—'} / 40</td>
+                      <td className="num py-2">{ieltsRawNeeded('reading', b) ?? '—'} / 40</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+        <Card className="p-5 text-[13.5px] text-ink-2">
+          <p className="font-semibold text-ink">How the overall band is rounded</p>
+          <p className="mt-1">
+            The four skill bands are averaged. A fraction of .25 rounds up to the next half band and .75 rounds up to the next whole band;
+            anything lower rounds down.
+          </p>
+          <ul className="mt-2 flex flex-col gap-0.5 text-[13px]">
+            <li className="num">7 + 7 + 7 + 8 = 7.25 → 7.5</li>
+            <li className="num">7 + 7 + 7.5 + 7 = 7.125 → 7.0</li>
+            <li className="num">7.5 + 8 + 7.5 + 8 = 7.75 → 8.0</li>
+          </ul>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function Scores() {
   const exams = useActiveExams();
   const [exam, setExam] = useState<ExamId>(exams[0] ?? 'sat');
@@ -314,7 +469,7 @@ export default function Scores() {
       <PageHeader
         eyebrow="Practice"
         title="Score Estimator"
-        description="Convert practice raw scores into estimated scaled scores, and see exactly how much room for error your targets leave."
+        description="Convert practice raw scores into estimated scaled scores and IELTS bands, and see exactly how much room for error your targets leave."
       />
       <Segmented
         label="Exam"
@@ -330,7 +485,7 @@ export default function Scores() {
           ),
         }))}
       />
-      {exam === 'sat' ? <SatEstimator /> : <ApEstimator key={exam} exam={exam} />}
+      {exam === 'sat' ? <SatEstimator /> : exam === 'ielts' ? <IeltsEstimator /> : <ApEstimator key={exam} exam={exam} />}
     </>
   );
 }

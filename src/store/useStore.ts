@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
     calcbc: examDefaults('calcbc', true),
     physc: examDefaults('physc', true),
     phys1: examDefaults('phys1', true),
+    ielts: examDefaults('ielts', true),
   },
   pomodoro: { focus: 25, short: 5, long: 15, longEvery: 4 },
   dailyGoalMinutes: 120,

@@ -143,6 +143,7 @@ const MOCK_TIPS: Record<ExamId, string> = {
   sat: 'Use Bluebook for the real adaptive test. This timer is for paper practice tests or Question Bank module simulations — you cannot return to Module 1 once it ends.',
   calcbc: 'Do Part A without a calculator. When the clock hits 0, pens down — partial FRQ answers still score.',
   phys1: 'Practise budgeting ~25 minutes per FRQ. Show the starting equation before substituting numbers.',
+  ielts: 'Do Writing Task 2 first if you tend to run out of time: it is worth twice as much as Task 1. For Speaking, ask someone to read the questions and record yourself.',
   physc: 'Budget ~25 minutes per FRQ. Derivations earn points even when the final number is wrong.',
 };
 

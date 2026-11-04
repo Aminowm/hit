@@ -1,6 +1,8 @@
 /** Core domain types shared by data files, the store and the UI. */
 
-export type ExamId = 'sat' | 'calcbc' | 'phys1' | 'physc';
+export type ExamId = 'sat' | 'calcbc' | 'phys1' | 'physc' | 'ielts';
+
+export type IeltsSkill = 'listening' | 'reading' | 'writing' | 'speaking';
 
 export interface ExamSection {
   name: string;
@@ -24,6 +26,8 @@ export interface ExamDef {
   scale: string;
   defaultDate: string | null;
   defaultTarget: number;
+  /** Allowed target values (Settings input). */
+  target: { min: number; max: number; step: number };
   /** Whether the date is confirmed by College Board (unconfirmed dates get a hint in the UI). */
   dateConfirmed: boolean;
   sections: ExamSection[];
@@ -70,7 +74,7 @@ export interface TopicProgress {
 
 // ---------- Library ----------
 
-export type ResourceKind = 'official' | 'book' | 'textbook' | 'video' | 'website' | 'practice' | 'tool';
+export type ResourceKind = 'official' | 'book' | 'textbook' | 'course' | 'flashcards' | 'video' | 'website' | 'practice' | 'tool';
 export type ResourceCost = 'free' | 'paid' | 'freemium';
 export type ResourcePriority = 'essential' | 'recommended' | 'supplementary';
 export type ResourceStatus = 'none' | 'planned' | 'using' | 'done';
@@ -81,8 +85,13 @@ export interface Resource {
   author: string;
   exams: ExamId[];
   kind: ResourceKind;
-  cost: ResourceCost;
+  /** Omitted when unknown. */
+  cost?: ResourceCost;
   priority: ResourcePriority;
+  /** IELTS: which skill(s) the resource trains. */
+  skills?: IeltsSkill[];
+  /** Shown first, with a "Your pick" badge. */
+  featured?: boolean;
   description: string;
   /** The coach's note: how to get the most out of it. */
   howToUse: string;
@@ -141,6 +150,8 @@ export interface PracticeEntry {
   math?: number;
   /** AP composite percentage (0–100) from the score estimator or your own grading. */
   percent?: number;
+  /** IELTS band (0–9, half bands). */
+  band?: number;
   /** For question-bank / FRQ sets. */
   correct?: number;
   total?: number;

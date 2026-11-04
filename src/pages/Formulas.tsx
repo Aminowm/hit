@@ -13,6 +13,7 @@ const SHEET_NOTE: Record<ExamId, string> = {
   sat: 'Bluebook gives you a reference sheet with the geometry formulas marked “on sheet”. Everything else you must know cold.',
   calcbc: 'AP Calculus has NO formula sheet. Every formula here must be memorized — flashcards are generated for all of them.',
   phys1: 'You get the official equation sheet for the whole exam. Learn what each symbol means and when each equation applies.',
+  ielts: 'IELTS has no formulas. Useful language lives on the IELTS page and in Flashcards.',
   physc: 'The equation sheet covers the core relations; the calculus-based results marked “memorize” are faster to know than to derive.',
 };
 
@@ -47,7 +48,8 @@ function FormulaCard({ f }: { f: Formula }) {
 }
 
 export default function Formulas() {
-  const exams = useActiveExams();
+  const active = useActiveExams();
+  const exams = active.filter((e) => FORMULAS[e].length > 0);
   const [exam, setExam] = useState<ExamId>(exams.includes('calcbc') ? 'calcbc' : (exams[0] ?? 'sat'));
   const [q, setQ] = useState('');
   const [memorizeOnly, setMemorizeOnly] = useState(false);

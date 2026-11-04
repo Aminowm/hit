@@ -93,7 +93,7 @@ export function useRoadmap(): Phase[] {
       buildRoadmap({
         today,
         sat: exams.includes('sat') ? settings.sat.date : null,
-        ap: exams.filter((e) => e !== 'sat' && settings[e].date).map((e) => ({ exam: e, date: settings[e].date! })),
+        ap: exams.filter((e) => e !== 'sat' && e !== 'ielts' && settings[e].date).map((e) => ({ exam: e, date: settings[e].date! })),
       }),
     [exams, settings, today],
   );

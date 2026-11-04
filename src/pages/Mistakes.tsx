@@ -8,6 +8,7 @@ import { Badge, Button, Card, CardHeader, cx, EmptyState, ExamTag, Field, IconBu
 import { EXAMS } from '../data/exams';
 import { COURSES, TOPIC_INDEX } from '../data/topics';
 import { daysBetween, formatDate, todayISO } from '../lib/dates';
+import { unitLabel } from '../lib/progress';
 import type { ExamId, Mistake, MistakeTag } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
@@ -87,7 +88,7 @@ function AddMistake({ open, onClose, exams }: { open: boolean; onClose: () => vo
             <select id={id} className="field" value={topicId} onChange={(e) => setTopicId(e.target.value)}>
               <option value="">— Choose the skill/topic —</option>
               {COURSES[exam].units.map((u) => (
-                <optgroup key={u.id} label={u.section ? `${u.section} · ${u.title}` : `Unit ${u.code} · ${u.title}`}>
+                <optgroup key={u.id} label={u.section ? `${u.section} · ${u.title}` : unitLabel(u)}>
                   {u.topics.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.code ? `${t.code} ` : ''}

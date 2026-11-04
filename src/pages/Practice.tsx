@@ -8,7 +8,7 @@ import { EXAMS } from '../data/exams';
 import { FRQ_ARCHIVE, frqKey } from '../data/frqArchive';
 import { RESOURCES } from '../data/resources';
 import { formatDate, todayISO } from '../lib/dates';
-import { AP_FORMATS, apScoreFromPercent } from '../lib/scoring';
+import { AP_FORMATS, apScoreFromPercent, formatBand } from '../lib/scoring';
 import type { ExamId, PracticeEntry, PracticeKind } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
@@ -23,6 +23,7 @@ const KIND_LABEL: Record<PracticeKind, string> = {
 function entryScore(p: PracticeEntry): string {
   if (p.exam === 'sat' && p.rw && p.math) return `${p.rw + p.math} (${p.rw} R&W · ${p.math} M)`;
   if (p.exam === 'sat' && (p.rw || p.math)) return `${p.rw ? `${p.rw} R&W` : `${p.math} Math`}`;
+  if (p.band !== undefined) return `Band ${formatBand(p.band)}`;
   if (p.percent !== undefined) return `${Math.round(p.percent)}% → est. ${apScoreFromPercent(p.exam, p.percent)}`;
   if (p.correct !== undefined && p.total) return `${p.correct}/${p.total} (${Math.round((p.correct / p.total) * 100)}%)`;
   return '—';
@@ -38,6 +39,7 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
   const [rw, setRw] = useState('');
   const [math, setMath] = useState('');
   const [percent, setPercent] = useState('');
+  const [band, setBand] = useState('');
   const [correct, setCorrect] = useState('');
   const [total, setTotal] = useState('');
   const [minutes, setMinutes] = useState('');
@@ -45,13 +47,23 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
   const [logTime, setLogTime] = useState(true);
 
   const isSat = exam === 'sat';
-  const scaled = isSat && (kind === 'full' || kind === 'section');
-  const usesPercent = !isSat && (kind === 'full' || kind === 'section');
+  const isIelts = exam === 'ielts';
+  const scored = kind === 'full' || kind === 'section';
+  const scaled = isSat && scored;
+  const usesBand = isIelts && scored;
+  const usesPercent = !isSat && !isIelts && scored;
+  const usesCount = !scaled && !usesPercent && !usesBand;
   const n = (v: string) => (v.trim() === '' ? undefined : Number(v));
 
   const valid =
     source.trim() &&
-    (scaled ? (n(rw) ?? n(math)) !== undefined : usesPercent ? n(percent) !== undefined : n(correct) !== undefined && (n(total) ?? 0) > 0);
+    (scaled
+      ? (n(rw) ?? n(math)) !== undefined
+      : usesPercent
+        ? n(percent) !== undefined
+        : usesBand
+          ? n(band) !== undefined
+          : n(correct) !== undefined && (n(total) ?? 0) > 0);
 
   const save = () => {
     if (!valid) return;
@@ -63,8 +75,9 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
       rw: scaled ? n(rw) : undefined,
       math: scaled ? n(math) : undefined,
       percent: usesPercent ? n(percent) : undefined,
-      correct: !scaled && !usesPercent ? n(correct) : undefined,
-      total: !scaled && !usesPercent ? n(total) : undefined,
+      band: usesBand ? n(band) : undefined,
+      correct: usesCount ? n(correct) : undefined,
+      total: usesCount ? n(total) : undefined,
       minutes: n(minutes),
       notes: notes.trim() || undefined,
     });
@@ -73,6 +86,7 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
     setRw('');
     setMath('');
     setPercent('');
+    setBand('');
     setCorrect('');
     setTotal('');
     setMinutes('');
@@ -82,7 +96,9 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
 
   const suggestions = isSat
     ? ['Bluebook Practice Test', 'Question Bank — Hard', 'Barron’s practice test']
-    : ['AP Classroom Progress Check', `${new Date().getFullYear() - 1} released FRQs`, 'Barron’s practice exam', 'Princeton Review practice test'];
+    : isIelts
+      ? ['Cambridge IELTS Academic — Test 1', 'Writing Task 2 essay', 'Listening section practice', 'Reading passage set']
+      : ['AP Classroom Progress Check', `${new Date().getFullYear() - 1} released FRQs`, 'Barron’s practice exam', 'Princeton Review practice test'];
 
   return (
     <Modal
@@ -163,7 +179,24 @@ function AddEntry({ open, onClose, exams }: { open: boolean; onClose: () => void
             {(id) => <input id={id} type="number" min={0} max={100} className="field" value={percent} onChange={(e) => setPercent(e.target.value)} />}
           </Field>
         )}
-        {!scaled && !usesPercent && (
+        {usesBand && (
+          <Field
+            label={kind === 'full' ? 'Overall band (0–9)' : 'Band for this skill (0–9)'}
+            className="sm:col-span-2"
+            hint={
+              <>
+                Convert Listening/Reading raw scores to bands in the{' '}
+                <Link to="/scores" className="text-accent hover:underline" onClick={onClose}>
+                  Score Estimator
+                </Link>
+                .
+              </>
+            }
+          >
+            {(id) => <input id={id} type="number" min={0} max={9} step={0.5} className="field" value={band} onChange={(e) => setBand(e.target.value)} />}
+          </Field>
+        )}
+        {usesCount && (
           <>
             <Field label={kind === 'frq' ? 'Points earned' : 'Correct'}>
               {(id) => <input id={id} type="number" min={0} className="field" value={correct} onChange={(e) => setCorrect(e.target.value)} />}
@@ -308,7 +341,7 @@ export default function Practice() {
 
   const satPoints = practice.filter((p) => p.exam === 'sat' && p.rw && p.math).map((p) => ({ date: p.date, value: p.rw! + p.math! }));
   const apSeries = exams
-    .filter((e) => e !== 'sat')
+    .filter((e) => e !== 'sat' && e !== 'ielts')
     .map((e) => ({
       id: e,
       label: EXAMS[e].short,
@@ -316,6 +349,8 @@ export default function Practice() {
       points: practice.filter((p) => p.exam === e && p.percent !== undefined).map((p) => ({ date: p.date, value: p.percent! })),
     }))
     .filter((s) => s.points.length);
+  const ieltsPoints = practice.filter((p) => p.exam === 'ielts' && p.band !== undefined && p.kind === 'full').map((p) => ({ date: p.date, value: p.band! }));
+  const ieltsTarget = useStore((s) => s.settings.exams.ielts.target);
 
   return (
     <>
@@ -376,6 +411,25 @@ export default function Practice() {
                 )}
               </div>
             </Card>
+            {exams.includes('ielts') && (
+              <Card className="lg:col-span-2">
+                <CardHeader title="IELTS overall band" subtitle={`Full practice tests · target ${formatBand(ieltsTarget)}`} />
+                <div className="px-5 pb-5">
+                  {ieltsPoints.length ? (
+                    <LineChart
+                      ariaLabel="IELTS practice overall bands over time"
+                      series={[{ id: 'ielts', label: 'Overall band', color: 'var(--exam-ielts)', points: ieltsPoints }]}
+                      domain={[Math.max(0, Math.min(ieltsTarget, ...ieltsPoints.map((p) => p.value)) - 1.5), 9]}
+                      target={{ value: ieltsTarget, label: 'Target' }}
+                      format={(v) => formatBand(Math.round(v * 2) / 2)}
+                      height={200}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted">Log a full IELTS practice test with its overall band to start the trend line.</p>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
 
           <Card>

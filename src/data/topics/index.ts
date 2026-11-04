@@ -1,5 +1,6 @@
 import type { Course, ExamId, Topic, Unit } from '../../lib/types';
 import { CALCBC_COURSE } from './calcbc';
+import { IELTS_COURSE } from './ielts';
 import { PHYS1_COURSE, PHYSC_COURSE } from './physics';
 import { SAT_COURSE } from './sat';
 
@@ -8,6 +9,7 @@ export const COURSES: Record<ExamId, Course> = {
   calcbc: CALCBC_COURSE,
   phys1: PHYS1_COURSE,
   physc: PHYSC_COURSE,
+  ielts: IELTS_COURSE,
 };
 
 export interface TopicRef {

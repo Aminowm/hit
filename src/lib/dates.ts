@@ -54,7 +54,7 @@ function fmt(options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
   return f;
 }
 
-export function formatDate(iso: string, style: 'short' | 'medium' | 'long' | 'weekday' = 'medium'): string {
+export function formatDate(iso: string, style: 'short' | 'medium' | 'long' | 'weekday' | 'weekdayDate' = 'medium'): string {
   const d = parseISODate(iso);
   switch (style) {
     case 'short':
@@ -63,6 +63,8 @@ export function formatDate(iso: string, style: 'short' | 'medium' | 'long' | 'we
       return fmt({ weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(d);
     case 'weekday':
       return fmt({ weekday: 'short' }).format(d);
+    case 'weekdayDate':
+      return fmt({ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(d);
     default:
       return fmt({ month: 'short', day: 'numeric', year: 'numeric' }).format(d);
   }

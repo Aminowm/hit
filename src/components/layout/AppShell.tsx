@@ -1,6 +1,7 @@
 import {
   Calculator,
   CalendarDays,
+  Languages,
   Layers,
   LayoutDashboard,
   Library,
@@ -17,6 +18,7 @@ import {
 import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { EXAMS } from '../../data/exams';
+import type { ExamId } from '../../lib/types';
 import { formatClock } from '../../lib/dates';
 import { useActiveExams, useStudyQueue } from '../../store/selectors';
 import { useStore } from '../../store/useStore';
@@ -31,6 +33,8 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
   badge?: 'cards';
+  /** Only shown while this exam is active. */
+  exam?: ExamId;
 }
 
 const NAV: { heading: string; items: NavItem[] }[] = [
@@ -41,6 +45,7 @@ const NAV: { heading: string; items: NavItem[] }[] = [
       { to: '/library', label: 'Library', icon: Library },
       { to: '/topics', label: 'Topic Tracker', icon: ListChecks },
       { to: '/formulas', label: 'Formula Sheets', icon: Sigma },
+      { to: '/ielts', label: 'IELTS', icon: Languages, exam: 'ielts' },
       { to: '/flashcards', label: 'Flashcards', icon: Layers, badge: 'cards' },
     ],
   },
@@ -77,7 +82,7 @@ function Brand() {
       </svg>
       <span className="leading-none">
         <span className="block font-serif text-[19px] font-semibold tracking-tight">Lyceum</span>
-        <span className="mt-0.5 block text-[11px] tracking-wide text-muted">SAT · AP study desk</span>
+        <span className="mt-0.5 block text-[11px] tracking-wide text-muted">SAT · AP · IELTS study desk</span>
       </span>
     </NavLink>
   );
@@ -94,7 +99,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         <div key={group.heading}>
           <p className="eyebrow mb-1.5 px-3">{group.heading}</p>
           <ul className="flex flex-col gap-0.5">
-            {group.items.map(({ to, label, icon: Icon, badge }) => (
+            {group.items.filter((item) => !item.exam || exams.includes(item.exam)).map(({ to, label, icon: Icon, badge }) => (
               <li key={to}>
                 <NavLink
                   to={to}
@@ -173,7 +178,7 @@ function useDocumentTitle() {
   useEffect(() => {
     if (mock.running && mock.exam) document.title = `${formatClock(mockRemaining(mock, now))} · ${EXAMS[mock.exam].short} mock — Lyceum`;
     else if (pom.running) document.title = `${formatClock(pomRemaining(pom, now))} · ${PHASE_LABEL[pom.phase]} — Lyceum`;
-    else document.title = 'Lyceum — Free SAT & AP Study Desk';
+    else document.title = 'Lyceum — Free SAT, AP & IELTS Study Desk';
   }, [pom, mock, now]);
 }
 

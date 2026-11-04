@@ -1,7 +1,7 @@
 # Lyceum — SAT · AP Study Desk
 
 A personal study dashboard for the **Digital SAT** (target 1550, Dec 5 2026), **AP Calculus BC** (May 10 2027),
-**AP Physics C: Mechanics** (May 3 2027) and **AP Physics 1**. It runs entirely in your browser, with no account
+**AP Physics C: Mechanics** (May 3 2027), **AP Physics 1** and **IELTS Academic**. It runs entirely in your browser, with no account
 and no server; your progress is saved locally and can be exported as a backup.
 
 ## What's inside
@@ -18,6 +18,7 @@ and no server; your progress is saved locally and can be exported as a backup.
 | **Score Estimator** | SAT raw → scaled (harder/easier Module 2), "mistake budget" for your target, AP composite → 1–5 with FRQ points needed for a 5 |
 | **Planner** | Weekly task board, "Suggest this week" generator from your roadmap phase, manual study-time log |
 | **Timer** | Pomodoro that logs focus time per exam, and a mock-exam timer with official section timings (May 2027 Calc BC format) |
+| **IELTS** | Format, marking criteria, strategies and weekly routine for Writing, Speaking, Listening and Reading; Task 1/Task 2 structures, linking words, speaking phrases; curated books and courses per skill (your Testify courses first). IELTS also appears in the tracker, library, flashcards, band calculator and mock timer |
 | **Settings** | Exam dates and targets, theme (light/dark/system), goals, JSON backup export/import |
 
 ## Run it locally

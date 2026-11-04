@@ -180,3 +180,42 @@ export function apFrqPointsNeeded(exam: ExamId, mcqCorrect: number, score: 2 | 3
   const pts = Math.ceil((needPct / 50) * frqMax - 1e-9);
   return pts > frqMax ? null : pts;
 }
+
+// ---------------------------------------------------------------- IELTS
+
+/**
+ * Typical raw-score (out of 40) to band conversions published by IELTS for
+ * Listening and Academic Reading. Boundaries can shift slightly between test
+ * versions, so treat results as estimates. Rows: [minimum raw, band].
+ */
+const IELTS_TABLES: Record<'listening' | 'reading', [number, number][]> = {
+  listening: [[39, 9], [37, 8.5], [35, 8], [32, 7.5], [30, 7], [26, 6.5], [23, 6], [18, 5.5], [16, 5], [13, 4.5], [10, 4], [8, 3.5], [6, 3], [4, 2.5], [2, 2], [1, 1], [0, 0]],
+  reading: [[39, 9], [37, 8.5], [35, 8], [33, 7.5], [30, 7], [27, 6.5], [23, 6], [19, 5.5], [15, 5], [13, 4.5], [10, 4], [8, 3.5], [6, 3], [4, 2.5], [2, 2], [1, 1], [0, 0]],
+};
+
+export function ieltsBandFromRaw(skill: 'listening' | 'reading', raw: number): number {
+  const r = clamp(Math.round(raw), 0, 40);
+  return IELTS_TABLES[skill].find(([min]) => r >= min)?.[1] ?? 0;
+}
+
+/** Fewest correct answers (out of 40) needed for `band`, or null if out of range. */
+export function ieltsRawNeeded(skill: 'listening' | 'reading', band: number): number | null {
+  const rows = [...IELTS_TABLES[skill]].reverse();
+  return rows.find(([, b]) => b >= band)?.[0] ?? null;
+}
+
+/**
+ * Overall band = mean of the four skills, rounded the IELTS way:
+ * a fraction of .25 rounds up to .5 and .75 rounds up to the next whole band.
+ */
+export function ieltsOverall(bands: number[]): number {
+  if (!bands.length) return 0;
+  const avg = bands.reduce((a, b) => a + b, 0) / bands.length;
+  const whole = Math.floor(avg + 1e-9);
+  const frac = avg - whole;
+  if (frac < 0.25 - 1e-9) return whole;
+  if (frac < 0.75 - 1e-9) return whole + 0.5;
+  return whole + 1;
+}
+
+export const formatBand = (b: number) => (Number.isInteger(b) ? b.toFixed(1) : String(b));

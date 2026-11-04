@@ -1,94 +1,12 @@
-import { BookOpen, ExternalLink, Lightbulb, Plus, Search, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Badge, Button, buttonClass, Card, cx, EmptyState, ExamTag, Field, IconButton, Modal, PageHeader, Segmented } from '../components/ui';
+import { byPriority, COST_LABEL, KIND_LABEL, ResourceCard } from '../components/ResourceCard';
+import { Button, Card, EmptyState, Field, Modal, PageHeader, Segmented } from '../components/ui';
 import { EXAMS } from '../data/exams';
 import { RESOURCES } from '../data/resources';
-import { askConfirm } from '../components/confirm';
-import type { ExamId, Resource, ResourceCost, ResourceKind, ResourcePriority, ResourceStatus } from '../lib/types';
+import type { ExamId, ResourceCost, ResourceKind, ResourcePriority } from '../lib/types';
 import { useActiveExams } from '../store/selectors';
 import { useStore } from '../store/useStore';
-
-const KIND_LABEL: Record<ResourceKind, string> = {
-  official: 'Official',
-  book: 'Prep book',
-  textbook: 'Textbook',
-  video: 'Video',
-  website: 'Website',
-  practice: 'Question bank',
-  tool: 'Tool',
-};
-
-const PRIORITY: Record<ResourcePriority, { label: string; tone: 'accent' | 'neutral' | 'good' }> = {
-  essential: { label: 'Essential', tone: 'accent' },
-  recommended: { label: 'Recommended', tone: 'good' },
-  supplementary: { label: 'Extra', tone: 'neutral' },
-};
-
-const COST_LABEL: Record<ResourceCost, string> = { free: 'Free', paid: 'Paid', freemium: 'Free + paid' };
-
-const STATUS_LABEL: Record<ResourceStatus, string> = { none: 'Not tracked', planned: 'Planned', using: 'Using now', done: 'Finished' };
-
-const PRIORITY_RANK: Record<ResourcePriority, number> = { essential: 0, recommended: 1, supplementary: 2 };
-
-function ResourceCard({ r }: { r: Resource }) {
-  const status = useStore((s) => s.resourceStatus[r.id] ?? 'none');
-  const setStatus = useStore((s) => s.setResourceStatus);
-  const remove = useStore((s) => s.removeResource);
-  const p = PRIORITY[r.priority];
-
-  return (
-    <Card as="article" className={cx('flex flex-col p-5', status === 'done' && 'opacity-75')}>
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge tone={p.tone}>{p.label}</Badge>
-        <Badge>{KIND_LABEL[r.kind]}</Badge>
-        <Badge tone={r.cost === 'free' ? 'good' : 'neutral'}>{COST_LABEL[r.cost]}</Badge>
-        {r.custom && <Badge tone="warn">Yours</Badge>}
-      </div>
-      <h3 className="mt-3 font-serif text-[17px] leading-snug font-semibold">{r.title}</h3>
-      <p className="mt-0.5 text-[13px] text-muted">{r.author}</p>
-      <p className="mt-2.5 text-[14px] text-ink-2">{r.description}</p>
-      {r.howToUse && (
-        <div className="mt-3 flex gap-2 rounded-lg bg-sunken px-3 py-2.5 text-[13px] text-ink-2">
-          <Lightbulb size={15} className="mt-0.5 shrink-0 text-accent" aria-hidden />
-          <p>
-            <span className="font-semibold text-ink">How to use it: </span>
-            {r.howToUse}
-          </p>
-        </div>
-      )}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {r.exams.map((e) => (
-          <ExamTag key={e} exam={e} />
-        ))}
-      </div>
-      <div className="mt-4 flex items-center gap-2 border-t border-line pt-4">
-        <select
-          aria-label={`Status of ${r.title}`}
-          className="field h-8 w-auto py-0 text-[13px]"
-          value={status}
-          onChange={(e) => setStatus(r.id, e.target.value as ResourceStatus)}
-        >
-          {(Object.keys(STATUS_LABEL) as ResourceStatus[]).map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABEL[s]}
-            </option>
-          ))}
-        </select>
-        <span className="flex-1" />
-        {r.custom && (
-          <IconButton label="Remove resource" onClick={async () => (await askConfirm({ title: `Remove “${r.title}”?`, confirmLabel: 'Remove', danger: true })) && remove(r.id)}>
-            <Trash2 size={16} />
-          </IconButton>
-        )}
-        {r.url && (
-          <a href={r.url} target="_blank" rel="noopener noreferrer" className={buttonClass('secondary', 'sm')}>
-            Open <ExternalLink size={14} />
-          </a>
-        )}
-      </div>
-    </Card>
-  );
-}
 
 function AddResource({ open, onClose, exams }: { open: boolean; onClose: () => void; exams: ExamId[] }) {
   const add = useStore((s) => s.addResource);
@@ -195,11 +113,11 @@ export default function LibraryPage() {
       .filter((r) => r.exams.some((e) => activeExams.includes(e)))
       .filter((r) => exam === 'all' || r.exams.includes(exam))
       .filter((r) => kind === 'all' || r.kind === kind)
-      .filter((r) => cost === 'all' || r.cost !== 'paid')
+      .filter((r) => cost === 'all' || r.cost === 'free' || r.cost === 'freemium')
       .filter((r) => priority === 'all' || r.priority === priority)
       .filter((r) => !mine || (statuses[r.id] ?? 'none') !== 'none')
       .filter((r) => !needle || `${r.title} ${r.author} ${r.description} ${r.howToUse}`.toLowerCase().includes(needle))
-      .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]);
+      .sort(byPriority);
   }, [all, activeExams, exam, kind, cost, priority, mine, statuses, q]);
 
   const using = Object.values(statuses).filter((s) => s === 'using').length;

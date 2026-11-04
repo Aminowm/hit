@@ -34,6 +34,7 @@
   --exam-physc: #eb6834;
   --exam-phys1: #1baf7a;
   --exam-sat: #6250d6;
+  --exam-ielts: #e87ba4;
 
   /* Chart chrome */
   --grid: #e7e2d7;
@@ -68,6 +69,7 @@
     --exam-physc: #d95926;
     --exam-phys1: #199e70;
     --exam-sat: #9085e9;
+    --exam-ielts: #d55181;
 
     --grid: #2a2824;
     --axis: #403d36;
@@ -100,6 +102,7 @@
   --exam-physc: #d95926;
   --exam-phys1: #199e70;
   --exam-sat: #9085e9;
+  --exam-ielts: #d55181;
 
   --grid: #2a2824;
   --axis: #403d36;
@@ -132,6 +135,7 @@
   --color-exam-calcbc: var(--exam-calcbc);
   --color-exam-phys1: var(--exam-phys1);
   --color-exam-physc: var(--exam-physc);
+  --color-exam-ielts: var(--exam-ielts);
 
   --radius-card: 14px;
   --shadow-card: 0 1px 0 rgb(29 27 22 / 0.03), 0 1px 3px rgb(29 27 22 / 0.05);

@@ -48,6 +48,14 @@ export function statusCounts(course: Course, map: ProgressMap): Record<TopicStat
   return counts;
 }
 
+/** AP units are numbered ("Unit 6"); SAT domains and IELTS skills are named only. */
+export const isNumberedUnit = (unit: Unit) => /^\d+$/.test(unit.code);
+
+/** "Unit 6 · Integration…" for AP units, the plain title otherwise. */
+export function unitLabel(unit: Unit, sep = ' · '): string {
+  return isNumberedUnit(unit) ? `Unit ${unit.code}${sep}${unit.title}` : unit.title;
+}
+
 /** Midpoint exam weight as a share of the total score (SAT sections count half). */
 export function unitWeight(unit: Unit): number {
   const mid = (unit.weight[0] + unit.weight[1]) / 2 / 100;
@@ -75,7 +83,8 @@ export function focusQueue(
   const items: FocusItem[] = [];
   for (const { course, daysLeft } of courses) {
     if (daysLeft !== null && daysLeft < 0) continue;
-    const urgency = daysLeft === null ? 1 : 1 + 30 / Math.max(daysLeft, 7);
+    // Exams without a date yet rank below dated ones until a date is set.
+    const urgency = daysLeft === null ? 0.6 : 1 + 30 / Math.max(daysLeft, 7);
     for (const unit of course.units) {
       const mastery = unitMastery(unit, map);
       if (mastery >= 0.999) continue;

@@ -15,6 +15,7 @@ export const EXAMS: Record<ExamId, ExamDef> = {
     scale: '400–1600',
     defaultDate: '2026-12-05',
     defaultTarget: 1550,
+    target: { min: 400, max: 1600, step: 10 },
     dateConfirmed: true,
     officialUrl: 'https://satsuite.collegeboard.org/sat/dates-deadlines',
     sections: [
@@ -42,6 +43,7 @@ export const EXAMS: Record<ExamId, ExamDef> = {
     scale: '1–5',
     defaultDate: '2027-05-10',
     defaultTarget: 5,
+    target: { min: 1, max: 5, step: 1 },
     dateConfirmed: true,
     officialUrl: 'https://apcentral.collegeboard.org/courses/ap-calculus-bc/exam',
     sections: [
@@ -66,6 +68,7 @@ export const EXAMS: Record<ExamId, ExamDef> = {
     scale: '1–5',
     defaultDate: null,
     defaultTarget: 5,
+    target: { min: 1, max: 5, step: 1 },
     dateConfirmed: false,
     officialUrl: 'https://apcentral.collegeboard.org/courses/ap-physics-1/exam',
     sections: [
@@ -93,6 +96,7 @@ export const EXAMS: Record<ExamId, ExamDef> = {
     scale: '1–5',
     defaultDate: '2027-05-03',
     defaultTarget: 5,
+    target: { min: 1, max: 5, step: 1 },
     dateConfirmed: true,
     officialUrl: 'https://apcentral.collegeboard.org/courses/ap-physics-c-mechanics/exam',
     sections: [
@@ -113,8 +117,40 @@ export const EXAMS: Record<ExamId, ExamDef> = {
     ],
     deadlines: [{ label: 'AP exam registration (avoid late fee — confirm with your school)', date: '2026-11-13' }],
   },
+  ielts: {
+    id: 'ielts',
+    name: 'IELTS Academic',
+    short: 'IELTS',
+    scale: '0–9',
+    defaultDate: null,
+    defaultTarget: 7.5,
+    target: { min: 4, max: 9, step: 0.5 },
+    dateConfirmed: false,
+    officialUrl: 'https://ielts.org/',
+    sections: [
+      { name: 'Listening', minutes: 30, questions: 40, note: 'Four recordings, each heard once' },
+      { name: 'Reading', minutes: 60, questions: 40, note: 'Three long passages · no extra time to transfer answers' },
+      { name: 'Writing · Task 1', minutes: 20, questions: 1, note: 'Suggested 20 min · describe a visual · 150+ words' },
+      { name: 'Writing · Task 2', minutes: 40, questions: 1, note: 'Suggested 40 min · essay · 250+ words' },
+      { name: 'Break', minutes: 10, isBreak: true },
+      { name: 'Speaking', minutes: 14, questions: 3, note: 'Part 1: 4–5 min · Part 2: 1 min prep + up to 2 min talk · Part 3: 4–5 min' },
+    ],
+    facts: [
+      'Four skills, each scored 0–9 in half bands. The overall band is their average: .25 rounds up to the next half band and .75 up to the next whole band.',
+      'Listening, Reading and Writing are taken together; Speaking is a face-to-face interview, sometimes on a different day.',
+      'On computer, Listening ends with 2 minutes to check answers; on paper you get 10 minutes to transfer them.',
+      'Writing Task 2 is worth twice as much as Task 1. Universities usually ask for 6.5–7.5 overall with a minimum in each skill.',
+    ],
+    deadlines: [],
+  },
 };
 
-export const EXAM_ORDER: ExamId[] = ['sat', 'calcbc', 'physc', 'phys1'];
+export const EXAM_ORDER: ExamId[] = ['sat', 'calcbc', 'physc', 'phys1', 'ielts'];
+
+/**
+ * Series order for stacked charts. Neighbouring colours in this order were
+ * validated for colour-vision deficiency; SAT violet must never sit next to Calc BC blue.
+ */
+export const CHART_ORDER: ExamId[] = ['calcbc', 'physc', 'phys1', 'sat', 'ielts'];
 
 export const examColorVar = (id: ExamId) => `var(--exam-${id})`;

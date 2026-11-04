@@ -1,4 +1,5 @@
 import type { Resource } from '../lib/types';
+import { IELTS_RESOURCES } from './ieltsResources';
 
 /** Book search link — neutral (no store affiliation) and stable across new editions. */
 const book = (q: string) => `https://www.google.com/search?tbm=bks&q=${encodeURIComponent(q)}`;
@@ -7,7 +8,7 @@ const book = (q: string) => `https://www.google.com/search?tbm=bks&q=${encodeURI
  * Curated library. Ordered roughly by how much score each resource is worth per hour.
  * Links point to official or publisher/author pages — no copyrighted files are hosted here.
  */
-export const RESOURCES: Resource[] = [
+const CORE_RESOURCES: Resource[] = [
   // ---------------------------------------------------------------- SAT — official
   {
     id: 'sat-bluebook',
@@ -635,3 +636,5 @@ export const RESOURCES: Resource[] = [
     url: 'https://fiveable.me/',
   },
 ];
+
+export const RESOURCES: Resource[] = [...CORE_RESOURCES, ...IELTS_RESOURCES];
